@@ -451,3 +451,38 @@ schematool -initSchema -dbType derby
 ```
 hive
 ```
+
+# Spark Configuration
+### Download and Extract Spark
+First, download the Spark package, extract the files, and move them to the system directory:
+
+```wget https://dlcdn.apache.org/spark/spark-4.0.1/spark-4.0.1-bin-hadoop3.tgz```
+
+```tar -xzf spark-4.0.1-bin-hadoop3.tgz```
+
+```mv spark-4.0.1-bin-hadoop3 /spark```
+
+### Configure Environment Variables
+To make Spark commands accessible from any directory, update your bash profile:
+
+Open the bash configuration file: ```nano ~/.bashrc```
+
+Add the following environment variables:```export SPARK_HOME=/spark export PATH=$PATH:$HADOOP_HOME/bin:$HIVE_HOME/bin:$SPARK_HOME/bin```
+
+Save the file and apply the changes: ```source ~/.bashrc```
+
+### Edit spark-env.sh File
+
+Navigate to the configuration folder and create the environment script from the template:
+
+```cd /spark/conf```
+
+```cp spark-env.sh.template spark-env.sh```
+
+```nano spark-env.sh```
+
+Start Spark
+
+Once the configuration is complete, you can launch the Spark interactive shell by running:
+
+```spark-shell```
