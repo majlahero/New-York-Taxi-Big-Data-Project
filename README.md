@@ -51,10 +51,22 @@ Edit the file at $HADOOP_HOME/etc/hadoop/core-site.xml and add the following:
 
 ```xml
 <configuration>
-    <property>
-        <name>fs.defaultFS</name>
-        <value>hdfs://master:9000</value>
-    </property>
+        <property>
+                <name>fs.defaultFS</name>
+                <value>hdfs://namenode:8020</value>
+                <description>Where HDFS NameNode can be found on the network</description>
+        </property>
+
+        <property>
+                <name>hadoop.http.staticuser.user</name>
+                <value>root</value>
+                <description>Whose can view the logs in the container application</description>
+        </property>
+
+        <property>
+                <name>io.compression.codecs</name>
+                <value>org.apache.hadoop.io.compress.SnappyCodec</value>
+        </property>
 </configuration>
 ```
 
@@ -63,18 +75,298 @@ Define the replication factor and storage directories:
 
 ```
 <configuration>
-    <property>
-        <name>dfs.replication</name>
-        <value>2</value>
-    </property>
-    <property>
-        <name>dfs.namenode.name.dir</name>
-        <value>file:///home/hdoop/hadoopdata/hdfs/namenode</value>
-    </property>
-    <property>
-        <name>dfs.datanode.data.dir</name>
-        <value>file:///home/hdoop/hadoopdata/hdfs/datanode</value>
-    </property>
+        <property>
+                <name>dfs.webhdfs.enabled</name>
+                <value>true</value>
+        </property>
+
+        <property>
+                <name>dfs.permissions.enabled</name>
+                <value>false</value>
+        </property>
+
+        <property>
+                <name>dfs.permissions</name>
+                <value>false</value>
+        </property>
+
+        <property>
+                <name>dfs.namenode.name.dir</name>
+                <value>/hadoop/dfs/name</value>
+        </property>
+
+        <property>
+                <name>dfs.datanode.data.dir</name>
+                <value>/hadoop/dfs/data</value>
+        </property>
+
+        <property>
+                <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
+                <value>false</value>
+        </property>
+
+        <!-- Allow multihomed network for security, availability and performance-->
+        <property>
+                <name>dfs.namenode.rpc-bind-host</name>
+                <value>0.0.0.0</value>
+                <description>
+                        controls what IP address the NameNode binds to.
+                        0.0.0.0 means all available.
+                </description>
+        </property>
+
+        <property>
+                <name>dfs.namenode.servicerpc-bind-host</name>
+                <value>0.0.0.0</value>
+                <description>
+                        controls what IP address the NameNode binds to.
+                        0.0.0.0 means all available.
+                </description>
+        </property>
+
+        <property>
+                <name>dfs.namenode.http-bind-host</name>
+                <value>0.0.0.0</value>
+                <description>
+                        controls what IP address the NameNode binds to.
+                        0.0.0.0 means all available.
+                </description>
+        </property>
+
+        <property>
+                <name>dfs.namenode.https-bind-host</name>
+                <value>0.0.0.0</value>
+                <description>
+                        controls what IP address the NameNode binds to.
+                        0.0.0.0 means all available.
+                </description>
+        </property>
+
+        <property>
+                <name>dfs.client.use.datanode.hostname</name>
+                <value>true</value>
+                <description>
+                        Whether clients should use datanode hostnames when
+                        connecting to datanodes.
+                </description>
+        </property>
+
+        <property>
+                <name>dfs.datanode.use.datanode.hostname</name>
+                <value>true</value>
+                <description>
+                        Whether datanodes should use datanode hostnames when
+                        connecting to other datanodes for data transfer.
+                </description>
+        </property>
+</configuration>
+```
+
+### mapred-site.xml
+```
+<configuration>
+        <property>
+                <name>mapreduce.framework.name</name>
+                <value>yarn</value>
+                <description>
+                        How hadoop execute the job, use yarn to execute the job
+                </description>
+        </property>
+
+        <property>
+                <name>mapred_child_java_opts</name>
+                <value>-Xmx4096m</value>
+        </property>
+
+        <property>
+                <name>mapreduce.map.memory.mb</name>
+                <value>4096</value>
+        </property>
+
+        <property>
+                <name>mapreduce.reduce.memory.mb</name>
+                <value>8192</value>
+        </property>
+
+        <property>
+                <name>mapreduce.map.java.opts</name>
+                <value>-Xmx3072m</value>
+        </property>
+
+        <property>
+                <name>mapreduce.reduce.java.opts</name>
+                <value>-Xmx6144m</value>
+        </property>
+
+        <property>
+                <name>yarn.app.mapreduce.am.env</name>
+                <value>HADOOP_MAPRED_HOME=/opt/hadoop-3.3.6/</value>
+                <description>
+                        Environment variable where MapReduce job will be processed
+                </description>
+        </property>
+
+        <property>
+                <name>mapreduce.map.env</name>
+                <value>HADOOP_MAPRED_HOME=/opt/hadoop-3.3.6/</value>
+        </property>
+
+        <property>
+                <name>mapreduce.reduce.env</name>
+                <value>HADOOP_MAPRED_HOME=/opt/hadoop-3.3.6/</value>
+        </property>
+
+        <!-- Allow multihomed network for security, availability and performance-->
+        <property>
+                <name>yarn.nodemanager.bind-host</name>
+                <value>0.0.0.0</value>
+        </property>
+</configuration>
+
+Cấu hình file yarn-site.xml:
+<configuration>
+        <property>
+                <name>yarn.log-aggregation-enable</name>
+                <value>true</value>
+                <description>
+                        Log aggregation collects each container's logs and
+                        moves these logs onto a file-system
+                </description>
+        </property>
+
+        <property>
+                <name>yarn.log.server.url</name>
+                <value>http://historyserver:8188/applicationhistory/logs/</value>
+                <description>
+                        URL for log aggregation server
+                </description>
+        </property>
+
+        <property>
+                <name>yarn.resourcemanager.recovery.enabled</name>
+                <value>true</value>
+        </property>
+
+        <property>
+                <name>yarn.resourcemanager.store.class</name>
+                <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.FileSystemRMStateStore</value>
+        </property>
+
+        <property>
+                <name>yarn.resourcemanager.scheduler.class</name>
+                <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
+        </property>
+
+        <property>
+                <name>yarn.scheduler.capacity.root.default.maximum-allocation-mb</name>
+                <value>8192</value>
+        </property>
+
+        <property>
+                <name>yarn.scheduler.capacity.root.default.maximum-allocation-vcores</name>
+                <value>4</value>
+        </property>
+
+        <property>
+                <name>yarn.resourcemanager.fs.state-store.uri</name>
+                <value>/rmstate</value>
+        </property>
+
+        <property>
+                <name>yarn.resourcemanager.system-metrics-publisher.enabled</name>
+                <value>true</value>
+        </property>
+
+        <property>
+                <name>yarn.resourcemanager.hostname</name>
+                <value>resourcemanager</value>
+        </property>
+
+        <property>
+                <name>yarn.resourcemanager.address</name>
+                <value>resourcemanager:8032</value>
+        </property>
+
+        <property>
+                <name>yarn.resourcemanager.scheduler.address</name>
+                <value>resourcemanager:8030</value>
+        </property>
+
+        <property>
+                <name>yarn.resourcemanager.resource-tracker.address</name>
+                <value>resourcemanager:8031</value>
+        </property>
+
+        <property>
+                <name>yarn.timeline-service.enabled</name>
+                <value>true</value>
+        </property>
+
+        <property>
+                <name>yarn.timeline-service.generic-application-history.enabled</name>
+                <value>true</value>
+        </property>
+
+        <property>
+                <name>yarn.timeline-service.hostname</name>
+                <value>historyserver</value>
+        </property>
+
+        <property>
+                <name>mapreduce.map.output.compress</name>
+                <value>true</value>
+        </property>
+
+        <property>
+                <name>mapred.map.output.compress.codec</name>
+                <value>org.apache.hadoop.io.compress.SnappyCodec</value>
+        </property>
+
+        <property>
+                <name>yarn.nodemanager.resource.memory-mb</name>
+                <value>16384</value>
+        </property>
+
+        <property>
+                <name>yarn.nodemanager.resource.cpu-vcores</name>
+                <value>8</value>
+        </property>
+
+        <property>
+                <name>yarn.nodemanager.disk-health-checker.max-disk-utilization-per-disk-percentage</name>
+                <value>98.5</value>
+        </property>
+
+        <property>
+                <name>yarn.nodemanager.remote-app-log-dir</name>
+                <value>/app-logs</value>
+        </property>
+
+        <property>
+                <name>yarn.nodemanager.aux-services</name>
+                <value>mapreduce_shuffle</value>
+        </property>
+
+        <property>
+                <name>yarn.nodemanager.auxservices.mapreduce.shuffle.class</name>
+                <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+        </property>
+
+        <!-- Allow multihomed network for security, availability and performance-->
+        <property>
+                <name>yarn.resourcemanager.bind-host</name>
+                <value>0.0.0.0</value>
+        </property>
+
+        <property>
+                <name>yarn.nodemanager.bind-host</name>
+                <value>0.0.0.0</value>
+        </property>
+
+        <property>
+                <name>yarn.timeline-service.bind-host</name>
+                <value>0.0.0.0</value>
+        </property>
 </configuration>
 ```
 # System Initialization
@@ -86,5 +378,76 @@ After configuration, format the NameNode and start the Hadoop services.
 ```start-dfs.sh```
 ```start-yarn.sh```
 
-### Verify active processes
-```jps```
+
+
+##  Hive Configuration
+### Installation and Environment Setup
+Download the Hive 4.0.1 installation package:
+
+```wget [https://dlcdn.apache.org/hive/hive-4.0.1/apache-hive-4.0.1-bin.tar.gz](https://dlcdn.apache.org/hive/hive-4.0.1/apache-hive-4.0.1-bin.tar.gz)```
+```tar -xzf apache-hive-4.0.1-bin.tar.gz```
+```mv apache-hive-4.0.1-bin hive```
+
+Configure environment variables in ~/.bashrc:
+```nano ~/.bashrc```
+
+Add the following lines to the end of the file:
+```
+export HADOOP_HOME=/opt/hadoop-3.6
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+export HIVE_HOME=/hive
+export PATH=$PATH:$HIVE_HOME/bin
+export CLASSPATH=$CLASSPATH:$HADOOP_HOME/lib/*:$HIVE_HOME/lib/*
+source ~/.bashrc
+```
+### Configure hive-env.sh
+```
+cd hive/conf
+cp hive-env.sh.template hive-env.sh
+nano hive-env.sh
+export HADOOP_HOME=/opt/hadoop-3.3.6
+```
+### 1.2.3 Configure hive-site.xml
+```
+cd hive/conf
+cp hive-default.xml.template hive-site.xml
+nano hive-site.xml
+```
+```
+<property>
+    <name>hive.server2.logging.operation.log.location</name>
+    <value>/tmp/hive/hadoop-3.3.6/operation_logs</value>
+</property>
+
+<property>
+    <name>hive.querylog.location</name>
+    <value>/tmp/hive/hadoop-3.3.6</value>
+</property>
+<property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:derby:;databaseName=metastore_db;create=true</value>
+</property>
+
+<property>
+    <name>hive.metastore.warehouse.dir</name>
+    <value>/user/hive/warehouse</value>
+</property>
+```
+### Create Hive Warehouse Directories on HDFS
+
+```
+hdfs dfs -mkdir /user
+hdfs dfs -mkdir /user/hive
+hdfs dfs -mkdir /user/hive/warehouse
+hdfs dfs -mkdir /user/tmp
+hdfs dfs -chmod g+w /user/hive/warehouse
+hdfs dfs -chmod g+w /user/tmp
+```
+### Initialize Hive Metastore Derby Database
+```
+schematool -initSchema -dbType derby
+```
+### Connect to Hive
+```
+hive
+```
