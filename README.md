@@ -481,8 +481,10 @@ Navigate to the configuration folder and create the environment script from the 
 
 ```nano spark-env.sh```
 
-Start Spark
+### Start Spark
 
 Once the configuration is complete, you can launch the Spark interactive shell by running:
 
 ```spark-shell```
+
+
